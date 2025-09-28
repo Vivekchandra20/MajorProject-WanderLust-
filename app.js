@@ -103,6 +103,6 @@ app.use((err, req, res, next) => {
   res.render("error.ejs", { statusCode, message });
 });
 
-app.listen(port, () => {
+app.listen(port,'0.0.0.0', () => {
   console.log(`App is listening in port ${port}`);
 });
