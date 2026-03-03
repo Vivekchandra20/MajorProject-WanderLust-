@@ -1,101 +1,491 @@
-<%- layout("/layouts/boilerplate") %>
-<body>
-    <div class="row">
-        <div class="col-8 offset-2">
+<% layout("/layouts/boilerplate") %>
 
-        
-  <h2>Edit the listing</h2>
+<style>
+  /* Fix layout and zoom issues */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    zoom: 100% !important;
+    width: 100% !important;
+    font-size: 16px !important;
+  }
+  
+  body {
+    display: block !important;
+    flex-direction: unset !important;
+    min-height: auto !important;
+  }
+  
+  nav:not(.premium-navbar) {
+    display: none !important;
+  }
+  
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: unset !important;
+    width: 100% !important;
+  }
+  
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+</style>
 
-  <form method="post"
-   action="/listings/<%=listing._id%>?_method=PUT"
-    novalidate
-     class="needs-validation"
-     enctype="multipart/form-data"
-     >
-
-    <div class="mb-3">
-      <label class="form-label" for="title">Edit title: </label>
-      <input
-        class="form-control"
-        type="text"
-        name="listing[title]"
-        value="<%= listing.title %>"
-        required
-      />
-      <div class="invalid-feedback">
-        Enter valid title
+<!-- PREMIUM NAVBAR -->
+<nav class="premium-navbar">
+  <div class="navbar-container">
+    <a href="/" class="navbar-logo">
+      <i class="fa-solid fa-compass"></i> WanderLust
+    </a>
+    <div class="navbar-search-wrapper">
+      <div class="navbar-search">
+        <i class="fa-solid fa-magnifying-glass navbar-search-icon"></i>
+        <input type="text" placeholder="Search destinations...">
       </div>
     </div>
-
-
-    <div class="mb-3">
-      <label class="form-label" for="description">Enter Description: </label>
-      <textarea class="form-control" type="text" name="listing[description]" required>
- <%= listing.description %> </textarea
-      >
-      <div class="invalid-feedback">
-        Please enter the description
-      </div>
-    </div>
-    <div class="mb-3">
-      <h2>Original lisitng image</h2>
-      <img src="<%= listing.image.url %>" alt="">
-    </div>
-
-
-    <div class="row">
-      <div class="mb-3">
-     <label class="form-label" for="image">Image link </label>
-      <input class="form-control" type="file" name="listing[image]"   />
-    </div>
-    </div>
-
-
-    <div class="mb-3 col-md-8">
-      <label class="form-label" for="price">Edit price: </label>
-      <input
-        class="form-control"
-        type="text"
-        value="<%= listing.price %>"
-        name="listing[price]" required
-      />
-      <div class="invalid-feedback">
-        Please enter valid price
-      </div>
-    </div>
-
-    <div class="mb-3 col-md-8">
-      <label class="form-label" for="location">Edit location: </label>
-      <input
-        class="form-control"
-        type="text"
-        value="<%= listing.location %>"
-        name="listing[location]" required
-      />
-      <div class="invalid-feedback">
-        Enter location
-      </div>
-      </div>
+    <div class="navbar-actions">
+      <a href="/wishlist" class="navbar-icon-btn wishlist" title="Wishlist">
+        <i class="fa-regular fa-heart"></i>
+        <span class="badge">0</span>
+      </a>
       
-    <div class="mb-3">
-      <label class="form-label" for="country">Edit country: </label>
-      <input
-        class="form-control"
-        type="text"
-        value="<%= listing.country %>"
-        name="listing[country]" required
-      />
-      <div class="invalid-feedback">
-        Please enter country
+      <!-- Profile/Login -->
+      <% if(currUser) { %>
+        <div class="navbar-profile-dropdown">
+          <div class="navbar-profile" id="profile-toggle">
+            <div class="navbar-avatar"><%= currUser.username.charAt(0).toUpperCase() %></div>
+            <span style="font-size: 0.9rem; color: var(--text-secondary);"><%= currUser.username %></span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; color: var(--text-secondary); transition: transform 0.3s ease;"></i>
+          </div>
+          
+          <!-- Dropdown Menu -->
+          <div class="profile-dropdown-menu" id="profile-dropdown">
+            <a href="/listings/new" class="dropdown-item">
+              <i class="fa-solid fa-plus"></i>
+              <span>List Your Property</span>
+            </a>
+            <a href="/listings" class="dropdown-item">
+              <i class="fa-solid fa-house"></i>
+              <span>Browse Listings</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="/logout" class="dropdown-item logout">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      <% } else { %>
+        <a href="/login" class="navbar-icon-btn" title="Sign In">
+          <i class="fa-solid fa-user"></i>
+        </a>
+      <% } %>
+    </div>
+  </div>
+</nav>
+
+<!-- PREMIUM FORM PAGE -->
+<div class="premium-form-page">
+  <div class="premium-form-container">
+    <!-- Form Header -->
+    <div class="form-header">
+      <div class="form-header-icon">
+        <i class="fa-solid fa-pen-to-square"></i>
       </div>
-    </div>
-    <button class="btn btn-primary">Submit</button>
-    <br><br>
+      <h1>Edit Listing</h1>
+      <p>Update your property details</p>
     </div>
 
+    <!-- Form -->
+    <form method="POST" action="/listings/<%=listing._id%>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
+      
+      <!-- Title -->
+      <div class="premium-form-group">
+        <label for="title" class="premium-form-label">
+          <i class="fa-solid fa-heading"></i>
+          Title<span class="required-indicator">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="title"
+          name="listing[title]" 
+          class="premium-form-input"
+          value="<%= listing.title %>"
+          required
+        >
+        <div class="invalid-feedback">Please enter a catchy title for your listing.</div>
+      </div>
 
-   
-  </form>
-</body>
+      <!-- Description -->
+      <div class="premium-form-group">
+        <label for="description" class="premium-form-label">
+          <i class="fa-solid fa-align-left"></i>
+          Description<span class="required-indicator">*</span>
+        </label>
+        <textarea 
+          id="description"
+          name="listing[description]" 
+          class="premium-form-textarea"
+          required
+        ><%= listing.description %></textarea>
+        <div class="form-helper-text">Highlight unique features, nearby attractions, and guest benefits</div>
+        <div class="invalid-feedback">Please provide a detailed description.</div>
+      </div>
+
+      <!-- Current Image Preview -->
+      <div class="premium-form-group">
+        <label class="premium-form-label">
+          <i class="fa-solid fa-image"></i>
+          Current Property Image
+        </label>
+        <div style="border: 2px solid var(--border-color); border-radius: 12px; overflow: hidden; max-width: 400px;">
+          <img src="<%= listing.image.url %>" alt="<%= listing.title %>" style="width: 100%; height: auto; display: block;">
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="premium-form-group">
+        <label class="premium-form-label">
+          <i class="fa-solid fa-images"></i>
+          Update Property Image
+        </label>
+        <div class="premium-file-input">
+          <input type="file" name="listing[image]" id="image" accept="image/*">
+          <label for="image" class="premium-file-label">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Choose New Image</span>
+          </label>
+        </div>
+        <div class="form-helper-text">Leave blank to keep current image. Upload high-quality images (JPG, PNG). Max size: 5MB</div>
+        
+        <!-- New Image Preview Section -->
+        <div id="image-preview-container" style="display: none; margin-top: 1.5rem;">
+          <div style="border: 2px solid var(--accent); border-radius: 12px; overflow: hidden; max-width: 100%; background: var(--background); position: relative;">
+            <img id="image-preview" src="" alt="New Preview" style="width: 100%; height: auto; display: block; max-height: 400px; object-fit: contain;">
+            <button type="button" id="remove-image" style="position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; background: rgba(220, 53, 69, 0.9); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" title="Remove new image">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <p style="color: var(--accent); font-size: 0.875rem; margin-top: 0.5rem; text-align: center; font-weight: 600;" id="image-file-name"></p>
+        </div>
+      </div>
+
+      <!-- Price & Country Row -->
+      <div class="form-row">
+        <div class="premium-form-group">
+          <label for="price" class="premium-form-label">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+            Price per Night<span class="required-indicator">*</span>
+          </label>
+          <input 
+            type="number" 
+            id="price"
+            name="listing[price]" 
+            class="premium-form-input"
+            value="<%= listing.price %>"
+            min="0"
+            required
+          >
+          <div class="invalid-feedback">Please enter a valid price.</div>
+        </div>
+
+        <div class="premium-form-group">
+          <label for="country" class="premium-form-label">
+            <i class="fa-solid fa-globe"></i>
+            Country<span class="required-indicator">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="country"
+            name="listing[country]" 
+            class="premium-form-input"
+            value="<%= listing.country %>"
+            required
+          >
+          <div class="invalid-feedback">Please enter the country.</div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="premium-form-group">
+        <label for="location" class="premium-form-label">
+          <i class="fa-solid fa-location-dot"></i>
+          Location<span class="required-indicator">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="location"
+          name="listing[location]" 
+          class="premium-form-input"
+          value="<%= listing.location %>"
+          required
+        >
+        <div class="form-helper-text">Enter city and state for accurate map positioning</div>
+        <div class="invalid-feedback">Please enter a valid location.</div>
+      </div>
+
+      <!-- Property Type Section -->
+      <div class="checkbox-section">
+        <div class="checkbox-section-title">
+          <i class="fa-solid fa-building"></i>
+          Property Type<span class="required-indicator">*</span>
+        </div>
+        <div class="checkbox-grid">
+          <label class="premium-checkbox-item">
+            <input type="radio" name="listing[propertyType]" value="Hotel" <%= listing.propertyType === 'Hotel' ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-hotel"></i>
+              Hotel
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="radio" name="listing[propertyType]" value="Villa" <%= listing.propertyType === 'Villa' ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-house"></i>
+              Villa
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="radio" name="listing[propertyType]" value="Resort" <%= listing.propertyType === 'Resort' ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-umbrella-beach"></i>
+              Resort
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="radio" name="listing[propertyType]" value="Apartment" <%= listing.propertyType === 'Apartment' ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-building-user"></i>
+              Apartment
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="radio" name="listing[propertyType]" value="Cottage" <%= listing.propertyType === 'Cottage' ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-house-chimney"></i>
+              Cottage
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Amenities Section -->
+      <div class="checkbox-section">
+        <div class="checkbox-section-title">
+          <i class="fa-solid fa-sparkles"></i>
+          Amenities
+        </div>
+        <div class="form-helper-text" style="margin-bottom: 1rem; padding-left: 0;">
+          Select all amenities available at your property
+        </div>
+        <div class="checkbox-grid">
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="WiFi" <%= listing.amenities && listing.amenities.includes('WiFi') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-wifi"></i>
+              WiFi
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="Pool" <%= listing.amenities && listing.amenities.includes('Pool') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-water-ladder"></i>
+              Swimming Pool
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="AC" <%= listing.amenities && listing.amenities.includes('AC') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-fan"></i>
+              Air Conditioning
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="Breakfast" <%= listing.amenities && listing.amenities.includes('Breakfast') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-mug-saucer"></i>
+              Free Breakfast
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="Parking" <%= listing.amenities && listing.amenities.includes('Parking') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-square-parking"></i>
+              Free Parking
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="Gym" <%= listing.amenities && listing.amenities.includes('Gym') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-dumbbell"></i>
+              Fitness Center
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="Restaurant" <%= listing.amenities && listing.amenities.includes('Restaurant') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-utensils"></i>
+              Restaurant
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="Spa" <%= listing.amenities && listing.amenities.includes('Spa') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-spa"></i>
+              Spa & Wellness
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="PetFriendly" <%= listing.amenities && listing.amenities.includes('PetFriendly') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-paw"></i>
+              Pet Friendly
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="RoomService" <%= listing.amenities && listing.amenities.includes('RoomService') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-bell-concierge"></i>
+              Room Service
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="Laundry" <%= listing.amenities && listing.amenities.includes('Laundry') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-jug-detergent"></i>
+              Laundry Service
+            </span>
+          </label>
+          <label class="premium-checkbox-item">
+            <input type="checkbox" name="listing[amenities][]" value="BeachAccess" <%= listing.amenities && listing.amenities.includes('BeachAccess') ? 'checked' : '' %>>
+            <span class="premium-checkbox-label">
+              <i class="fa-solid fa-person-swimming"></i>
+              Beach Access
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Submit Section -->
+      <div class="premium-submit-section">
+        <a href="/listings/<%= listing._id %>" class="premium-cancel-btn">
+          <i class="fa-solid fa-xmark"></i>
+          Cancel
+        </a>
+        <button type="submit" class="premium-submit-btn">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<!-- Link CSS Files -->
+<link rel="stylesheet" href="/css/premium-listings.css">
+<link rel="stylesheet" href="/css/premium-form.css">
+
+<script>
+// Form validation enhancement
+(function() {
+  'use strict';
+  const forms = document.querySelectorAll('.needs-validation');
+  Array.from(forms).forEach(form => {
+    form.addEventListener('submit', event => {
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add('was-validated');
+    }, false);
+  });
+})();
+
+// File input preview with image display
+const fileInput = document.getElementById('image');
+const fileLabel = document.querySelector('.premium-file-label span');
+const previewContainer = document.getElementById('image-preview-container');
+const previewImage = document.getElementById('image-preview');
+const imageFileName = document.getElementById('image-file-name');
+const removeImageBtn = document.getElementById('remove-image');
+
+if (fileInput && fileLabel) {
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    
+    if (file) {
+      // Update label
+      fileLabel.textContent = file.name;
+      
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        previewImage.src = event.target.result;
+        previewContainer.style.display = 'block';
+        imageFileName.textContent = `New Image: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+        
+        // Smooth scroll to preview
+        setTimeout(() => {
+          previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  
+  // Remove image button
+  if (removeImageBtn) {
+    removeImageBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      previewContainer.style.display = 'none';
+      previewImage.src = '';
+      fileLabel.textContent = 'Choose New Image';
+      imageFileName.textContent = '';
+    });
+    
+    // Hover effect for remove button
+    removeImageBtn.addEventListener('mouseenter', () => {
+      removeImageBtn.style.transform = 'scale(1.1)';
+      removeImageBtn.style.background = 'rgba(220, 53, 69, 1)';
+    });
+    
+    removeImageBtn.addEventListener('mouseleave', () => {
+      removeImageBtn.style.transform = 'scale(1)';
+      removeImageBtn.style.background = 'rgba(220, 53, 69, 0.9)';
+    });
+  }
+}
+
+// Profile Dropdown Toggle
+const profileToggle = document.getElementById('profile-toggle');
+const profileDropdown = document.getElementById('profile-dropdown');
+
+if (profileToggle && profileDropdown) {
+  profileToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileToggle.classList.toggle('active');
+    profileDropdown.classList.toggle('active');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.navbar-profile-dropdown')) {
+      profileToggle.classList.remove('active');
+      profileDropdown.classList.remove('active');
+    }
+  });
+
+  // Close dropdown when clicking a link
+  profileDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', () => {
+      profileToggle.classList.remove('active');
+      profileDropdown.classList.remove('active');
+    });
+  });
+}
+</script>
+
     </div>

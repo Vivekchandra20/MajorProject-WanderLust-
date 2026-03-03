@@ -7,8 +7,25 @@ const userSchema = new Schema({
     email:{
         type:String,
         required:true
+    },
+    wishlist: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Listing"
+        }
+    ],
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
+});
 
+// Ensure wishlist is always an array
+userSchema.pre('save', function(next) {
+    if (!this.wishlist) {
+        this.wishlist = [];
+    }
+    next();
 });
 
 userSchema.plugin(passwordLocalMongoose);

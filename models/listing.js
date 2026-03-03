@@ -25,6 +25,15 @@ const listingSchema = new Schema({
   price: Number,
   location: String,
   country: String,
+  propertyType: {
+    type: String,
+    enum: ["Hotel", "Villa", "Resort", "Apartment", "Cottage"],
+    default: "Hotel",
+  },
+  amenities: {
+    type: [String],
+    default: [],
+  },
   reviews: [
     {
       type: Schema.Types.ObjectId,

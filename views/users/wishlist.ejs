@@ -1,0 +1,386 @@
+<% layout("/layouts/boilerplate") %>
+
+<link rel="stylesheet" href="/css/premium-listings.css">
+
+<style>
+  /* Fix layout zoom and spacing issues */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    zoom: 100% !important;
+    width: 100% !important;
+    font-size: 16px !important;
+  }
+  
+  body {
+    display: block !important;
+    flex-direction: unset !important;
+    min-height: auto !important;
+  }
+  
+  /* Hide old navbar when premium navbar is active */
+  nav:not(.premium-navbar) {
+    display: none !important;
+  }
+  
+  /* Remove container constraints for premium layout */
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: unset !important;
+    width: 100% !important;
+  }
+  
+  /* Make sure boilerplate doesn't interfere */
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Wishlist specific styles */
+  .wishlist-container {
+    padding: 120px 3rem 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+  }
+
+  .wishlist-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .wishlist-header h1 {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .wishlist-header h1 i {
+    color: var(--accent);
+  }
+
+  .wishlist-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  .wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .wishlist-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .wishlist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .wishlist-card-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    position: relative;
+  }
+
+  .remove-wishlist-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+
+  .remove-wishlist-btn:hover {
+    background: #dc3545;
+    color: white;
+    transform: scale(1.1);
+  }
+
+  .remove-wishlist-btn i {
+    font-size: 1.2rem;
+    color: #dc3545;
+  }
+
+  .remove-wishlist-btn:hover i {
+    color: white;
+  }
+
+  .wishlist-card-body {
+    padding: 1.5rem;
+  }
+
+  .wishlist-card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .wishlist-card-location {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .wishlist-card-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .wishlist-card-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .view-details-btn {
+    flex: 1;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+  }
+
+  .view-details-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(26, 35, 50, 0.3);
+    color: white;
+  }
+
+  .empty-wishlist {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .empty-wishlist i {
+    font-size: 5rem;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+  }
+
+  .empty-wishlist h2 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+  }
+
+  .empty-wishlist p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+
+  .browse-listings-btn {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+
+  .browse-listings-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(26, 35, 50, 0.3);
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .wishlist-container {
+      padding: 100px 1.5rem 2rem;
+    }
+
+    .wishlist-header h1 {
+      font-size: 2rem;
+    }
+
+    .wishlist-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>
+
+<!-- STICKY PREMIUM NAVBAR -->
+<nav class="premium-navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <a href="/" class="navbar-logo">
+      <i class="fa-solid fa-compass"></i> WanderLust
+    </a>
+
+    <!-- Search Bar -->
+    <div class="navbar-search-wrapper">
+      <div class="navbar-search">
+        <i class="fa-solid fa-magnifying-glass navbar-search-icon"></i>
+        <input type="text" id="navbar-search-input" placeholder="Search destinations...">
+      </div>
+    </div>
+
+    <!-- Action Icons -->
+    <div class="navbar-actions">
+      <!-- Wishlist -->
+      <a href="/wishlist" class="navbar-icon-btn wishlist active" title="Wishlist">
+        <i class="fa-solid fa-heart"></i>
+        <span class="badge" id="wishlist-count"><%= wishlist.length %></span>
+      </a>
+
+      <!-- Profile/Login -->
+      <% if(currUser) { %>
+        <div class="navbar-profile-dropdown">
+          <div class="navbar-profile" id="profile-toggle">
+            <div class="navbar-avatar"><%= currUser.username.charAt(0).toUpperCase() %></div>
+            <span style="font-size: 0.9rem; color: var(--text-secondary);">
+              <%= currUser.username %>
+            </span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; color: var(--text-secondary); transition: transform 0.3s ease;"></i>
+          </div>
+          
+          <!-- Dropdown Menu -->
+          <div class="profile-dropdown-menu" id="profile-dropdown">
+            <a href="/listings/new" class="dropdown-item">
+              <i class="fa-solid fa-plus"></i>
+              <span>List Your Property</span>
+            </a>
+            <a href="/listings" class="dropdown-item">
+              <i class="fa-solid fa-house"></i>
+              <span>Browse Listings</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="/logout" class="dropdown-item logout">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      <% } else { %>
+        <a href="/login" class="navbar-icon-btn" title="Sign In">
+          <i class="fa-solid fa-user"></i>
+        </a>
+      <% } %>
+    </div>
+  </div>
+</nav>
+
+<!-- WISHLIST CONTENT -->
+<div class="wishlist-container">
+  <div class="wishlist-header">
+    <h1><i class="fa-solid fa-heart"></i> My Wishlist</h1>
+    <p>Your saved favorite properties</p>
+  </div>
+
+  <% if(wishlist && wishlist.length > 0) { %>
+    <div class="wishlist-grid">
+      <% for(let listing of wishlist) { %>
+        <div class="wishlist-card">
+          <div style="position: relative;">
+            <img src="<%= listing.image.url %>" alt="<%= listing.title %>" class="wishlist-card-image">
+            <form action="/wishlist/<%= listing._id %>?_method=DELETE" method="POST" style="display: inline;">
+              <button type="submit" class="remove-wishlist-btn" title="Remove from wishlist">
+                <i class="fa-solid fa-heart-crack"></i>
+              </button>
+            </form>
+          </div>
+          <div class="wishlist-card-body">
+            <h3 class="wishlist-card-title"><%= listing.title %></h3>
+            <div class="wishlist-card-location">
+              <i class="fa-solid fa-location-dot"></i>
+              <%= listing.location %>, <%= listing.country %>
+            </div>
+            <div class="wishlist-card-price">
+              ₹ <%= listing.price.toLocaleString('en-IN') %> <span style="font-size: 0.9rem; font-weight: 400; color: var(--text-secondary);">/night</span>
+            </div>
+            <div class="wishlist-card-actions">
+              <a href="/listings/<%= listing._id %>" class="view-details-btn">
+                View Details
+              </a>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="empty-wishlist">
+      <i class="fa-regular fa-heart"></i>
+      <h2>Your wishlist is empty</h2>
+      <p>Start adding properties to your wishlist to see them here!</p>
+      <a href="/listings" class="browse-listings-btn">
+        <i class="fa-solid fa-compass"></i> Browse Properties
+      </a>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  // Profile Dropdown Toggle
+  const profileToggle = document.getElementById('profile-toggle');
+  const profileDropdown = document.getElementById('profile-dropdown');
+
+  if (profileToggle && profileDropdown) {
+    profileToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileToggle.classList.toggle('active');
+      profileDropdown.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.navbar-profile-dropdown')) {
+        profileToggle.classList.remove('active');
+        profileDropdown.classList.remove('active');
+      }
+    });
+
+    // Close dropdown when clicking a link
+    profileDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        profileToggle.classList.remove('active');
+        profileDropdown.classList.remove('active');
+      });
+    });
+  }
+</script>

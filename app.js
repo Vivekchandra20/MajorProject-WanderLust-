@@ -49,6 +49,7 @@ const ExpressError = require("./utils/ExpressError.js");
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
+const wishlistRouter = require("./routes/wishlist.js");
 const port = 3000;
 
 app.engine("ejs", ejsMate);
@@ -89,6 +90,7 @@ app.use((req, res, next) => {
 
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
+app.use("/wishlist", wishlistRouter);
 app.use("/", userRouter);
 
 app.all(/.*/, (req, res, next) => {

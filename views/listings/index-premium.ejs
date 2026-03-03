@@ -1,39 +1,10 @@
 <% layout("/layouts/boilerplate") %>
 
 <style>
-  /* Fix layout zoom and spacing issues */
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    zoom: 100% !important;
-    width: 100% !important;
-    font-size: 16px !important;
-  }
-  
-  body {
-    display: block !important;
-    flex-direction: unset !important;
-    min-height: auto !important;
-  }
-  
-  /* Hide old navbar when premium navbar is active */
-  nav:not(.premium-navbar) {
-    display: none !important;
-  }
-  
-  /* Remove container constraints for premium layout */
-  .container {
-    max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    flex: unset !important;
-    width: 100% !important;
-  }
-  
   /* Make sure boilerplate doesn't interfere */
   main {
-    padding: 0 !important;
-    margin: 0 !important;
+    padding: 0;
+    margin: 0;
   }
 </style>
 
@@ -56,38 +27,18 @@
     <!-- Action Icons -->
     <div class="navbar-actions">
       <!-- Wishlist -->
-      <a href="/wishlist" class="navbar-icon-btn wishlist" title="Wishlist">
+      <button class="navbar-icon-btn wishlist" id="wishlist-btn" title="Wishlist">
         <i class="fa-regular fa-heart"></i>
         <span class="badge" id="wishlist-count">0</span>
-      </a>
+      </button>
 
       <!-- Profile/Login -->
       <% if(currUser) { %>
-        <div class="navbar-profile-dropdown">
-          <div class="navbar-profile" id="profile-toggle">
-            <div class="navbar-avatar"><%= currUser.username.charAt(0).toUpperCase() %></div>
-            <span style="font-size: 0.9rem; color: var(--text-secondary);">
-              <%= currUser.username %>
-            </span>
-            <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; color: var(--text-secondary); transition: transform 0.3s ease;"></i>
-          </div>
-          
-          <!-- Dropdown Menu -->
-          <div class="profile-dropdown-menu" id="profile-dropdown">
-            <a href="/listings/new" class="dropdown-item">
-              <i class="fa-solid fa-plus"></i>
-              <span>List Your Property</span>
-            </a>
-            <a href="/listings" class="dropdown-item">
-              <i class="fa-solid fa-house"></i>
-              <span>Browse Listings</span>
-            </a>
-            <div class="dropdown-divider"></div>
-            <a href="/logout" class="dropdown-item logout">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>
-              <span>Logout</span>
-            </a>
-          </div>
+        <div class="navbar-profile">
+          <div class="navbar-avatar"><%= currUser.username.charAt(0).toUpperCase() %></div>
+          <span style="font-size: 0.9rem; color: var(--text-secondary);">
+            <%= currUser.username %>
+          </span>
         </div>
       <% } else { %>
         <a href="/login" class="navbar-icon-btn" title="Sign In">
@@ -297,7 +248,7 @@
               <span class="review-count">(324 reviews)</span>
             </div>
 
-            <!-- Amenities -->
+            <!-- Amenities (if available in your data) -->
             <div class="hotel-amenities">
               <div class="amenity-icon" title="WiFi">
                 <i class="fa-solid fa-wifi"></i>
@@ -327,13 +278,16 @@
       <% } %>
     </div>
 
-    <!-- LIST VIEW -->
+    <!-- LIST VIEW - HOTEL CARDS (Hidden by default) -->
     <div class="listings-list" id="listings-list" style="display: none;">
       <% for(let listing of allListings) { %>
         <a href="/listings/<%= listing._id %>" class="hotel-card-list" data-price="<%= listing.price %>">
+          <!-- Image -->
           <div class="hotel-image-wrapper">
             <img src="<%= listing.image.url %>" alt="<%= listing.title %>" class="hotel-image">
           </div>
+
+          <!-- Info -->
           <div class="hotel-info">
             <div class="hotel-header">
               <h3 class="hotel-title"><%= listing.title %></h3>
@@ -341,10 +295,12 @@
                 <i class="fa-regular fa-heart"></i>
               </button>
             </div>
+
             <div class="hotel-location">
               <i class="fa-solid fa-location-dot"></i>
               <span><%= listing.location %></span>
             </div>
+
             <div class="hotel-rating">
               <div class="stars-display">
                 <i class="fa-solid fa-star"></i>
@@ -355,6 +311,11 @@
               </div>
               <span class="review-count">(324 reviews)</span>
             </div>
+
+            <p style="color: var(--text-secondary); margin: 0.5rem 0;">
+              <%= listing.description || 'Luxurious property with modern amenities and exceptional service.' %>
+            </p>
+
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
               <div class="hotel-price">
                 <span class="price-currency">₹</span>
@@ -417,114 +378,70 @@ listViewBtn.addEventListener('click', () => {
 
 // 2. Sorting
 const sortSelect = document.getElementById('sort-select');
+const allListings = document.querySelectorAll('[data-price]');
 
 sortSelect.addEventListener('change', function() {
-  const sortValue = this.value; // Capture value here
-  const gridCards = Array.from(listingsGrid.querySelectorAll('.hotel-card'));
-  const listCards = Array.from(listingsList.querySelectorAll('.hotel-card-list'));
+  const cards = Array.from(allListings);
   
-  // Sort grid cards
-  gridCards.sort((a, b) => {
-    const priceA = parseInt(a.dataset.price);
-    const priceB = parseInt(b.dataset.price);
-    
-    switch(sortValue) {
-      case 'price-low':
-        return priceA - priceB;
-      case 'price-high':
-        return priceB - priceA;
-      case 'rating':
-        return Math.random() - 0.5;
-      default:
-        return 0;
-    }
+  switch(this.value) {
+    case 'price-low':
+      cards.sort((a, b) => parseInt(a.dataset.price) - parseInt(b.dataset.price));
+      break;
+    case 'price-high':
+      cards.sort((a, b) => parseInt(b.dataset.price) - parseInt(a.dataset.price));
+      break;
+    case 'rating':
+      cards.sort((a, b) => Math.random() - 0.5); // Placeholder
+      break;
+    default:
+      // Keep original order
+      break;
+  }
+  
+  // Re-append sorted cards
+  cards.forEach(card => {
+    listingsGrid.appendChild(card.cloneNode(true));
+    listingsList.appendChild(card.cloneNode(true));
   });
-  
-  // Sort list cards the same way
-  listCards.sort((a, b) => {
-    const priceA = parseInt(a.dataset.price);
-    const priceB = parseInt(b.dataset.price);
-    
-    switch(sortValue) {
-      case 'price-low':
-        return priceA - priceB;
-      case 'price-high':
-        return priceB - priceA;
-      case 'rating':
-        return Math.random() - 0.5;
-      default:
-        return 0;
-    }
-  });
-  
-  // Reorder grid
-  gridCards.forEach(card => listingsGrid.appendChild(card));
-  
-  // Reorder list view
-  listCards.forEach(card => listingsList.appendChild(card));
 });
 
 // 3. Wishlist Functionality
+const wishlistBtns = document.querySelectorAll('.hotel-wishlist');
 let wishlistedItems = JSON.parse(localStorage.getItem('wishlist')) || [];
 
-function setupWishlistButtons() {
-  const wishlistBtns = document.querySelectorAll('.hotel-wishlist');
+wishlistBtns.forEach(btn => {
+  const listingId = btn.dataset.id;
   
-  wishlistBtns.forEach(btn => {
-    // Remove old listener by cloning
-    const newBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
+  // Check if already wishlisted
+  if(wishlistedItems.includes(listingId)) {
+    btn.classList.add('liked');
+    btn.innerHTML = '<i class="fa-solid fa-heart"></i>';
+  }
+  
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     
-    const listingId = newBtn.dataset.id;
+    btn.classList.toggle('liked');
     
-    // Check if already wishlisted
     if(wishlistedItems.includes(listingId)) {
-      newBtn.classList.add('liked');
-      newBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
+      wishlistedItems = wishlistedItems.filter(id => id !== listingId);
+    } else {
+      wishlistedItems.push(listingId);
     }
     
-    newBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      newBtn.classList.toggle('liked');
-      
-      if(wishlistedItems.includes(listingId)) {
-        wishlistedItems = wishlistedItems.filter(id => id !== listingId);
-        newBtn.innerHTML = '<i class="fa-regular fa-heart"></i>';
-      } else {
-        wishlistedItems.push(listingId);
-        newBtn.innerHTML = '<i class="fa-solid fa-heart"></i>';
-      }
-      
-      localStorage.setItem('wishlist', JSON.stringify(wishlistedItems));
-      updateWishlistCount();
-    });
+    localStorage.setItem('wishlist', JSON.stringify(wishlistedItems));
+    updateWishlistCount();
   });
-}
+});
 
 function updateWishlistCount() {
   const count = JSON.parse(localStorage.getItem('wishlist')) || [];
   document.getElementById('wishlist-count').textContent = count.length;
 }
 
-// Initial setup
-setupWishlistButtons();
+// Initial count
 updateWishlistCount();
-
-// Re-setup when view changes
-gridViewBtn.addEventListener('click', () => {
-  setTimeout(() => setupWishlistButtons(), 100);
-});
-
-listViewBtn.addEventListener('click', () => {
-  setTimeout(() => setupWishlistButtons(), 100);
-});
-
-// Re-setup when sorting changes
-sortSelect.addEventListener('change', () => {
-  setTimeout(() => setupWishlistButtons(), 100);
-});
 
 // 4. Price Range Filter
 const maxPriceInput = document.getElementById('max-price');
@@ -545,19 +462,7 @@ function filterListings() {
   const maxPrice = parseInt(maxPriceInput.value);
   const minPrice = parseInt(minPriceInput.value);
   
-  const gridCards = listingsGrid.querySelectorAll('.hotel-card');
-  const listCards = listingsList.querySelectorAll('.hotel-card-list');
-  
-  gridCards.forEach(card => {
-    const price = parseInt(card.dataset.price);
-    if(price >= minPrice && price <= maxPrice) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-  
-  listCards.forEach(card => {
+  allListings.forEach(card => {
     const price = parseInt(card.dataset.price);
     if(price >= minPrice && price <= maxPrice) {
       card.style.display = '';
@@ -579,7 +484,7 @@ document.getElementById('reset-filters').addEventListener('click', () => {
   filterListings();
 });
 
-// 6. Pagination
+// 6. Pagination (Basic)
 document.querySelectorAll('.pagination-btn[data-page]').forEach(btn => {
   btn.addEventListener('click', (e) => {
     document.querySelectorAll('.pagination-btn.active').forEach(b => b.classList.remove('active'));
@@ -602,22 +507,7 @@ document.querySelectorAll('.carousel-dots').forEach(dotContainer => {
 // 8. Search Bar
 document.getElementById('navbar-search-input').addEventListener('input', (e) => {
   const searchTerm = e.target.value.toLowerCase();
-  
-  const gridCards = listingsGrid.querySelectorAll('.hotel-card');
-  const listCards = listingsList.querySelectorAll('.hotel-card-list');
-  
-  gridCards.forEach(card => {
-    const title = card.querySelector('.hotel-title').textContent.toLowerCase();
-    const location = card.querySelector('.hotel-location').textContent.toLowerCase();
-    
-    if(title.includes(searchTerm) || location.includes(searchTerm)) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-  
-  listCards.forEach(card => {
+  allListings.forEach(card => {
     const title = card.querySelector('.hotel-title').textContent.toLowerCase();
     const location = card.querySelector('.hotel-location').textContent.toLowerCase();
     
@@ -629,31 +519,18 @@ document.getElementById('navbar-search-input').addEventListener('input', (e) => 
   });
 });
 
-// 9. Profile Dropdown Toggle
-const profileToggle = document.getElementById('profile-toggle');
-const profileDropdown = document.getElementById('profile-dropdown');
-
-if (profileToggle && profileDropdown) {
-  profileToggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    profileToggle.classList.toggle('active');
-    profileDropdown.classList.toggle('active');
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.navbar-profile-dropdown')) {
-      profileToggle.classList.remove('active');
-      profileDropdown.classList.remove('active');
+// 9. Tax Info Toggle (from original)
+let taxSwitch = document.querySelector('.tax-toggle input');
+if(taxSwitch) {
+  taxSwitch.addEventListener('click', () => {
+    let taxInfo = document.getElementsByClassName('tax-info');
+    for(let info of taxInfo) {
+      if(info.style.display != 'inline') {
+        info.style.display = 'inline';
+      } else {
+        info.style.display = 'none';
+      }
     }
-  });
-
-  // Close dropdown when clicking a link
-  profileDropdown.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', () => {
-      profileToggle.classList.remove('active');
-      profileDropdown.classList.remove('active');
-    });
   });
 }
 </script>

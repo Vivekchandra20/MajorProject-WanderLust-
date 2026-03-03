@@ -40,6 +40,17 @@ module.exports.createListing = async (req, res, next) => {
   newListing.owner = req.user._id;
   newListing.image = { url, filename };
 
+  // Handle amenities array - if no amenities selected, set to empty array
+  if (!req.body.listing.amenities) {
+    newListing.amenities = [];
+  } else if (typeof req.body.listing.amenities === 'string') {
+    // If only one amenity is selected, it comes as a string
+    newListing.amenities = [req.body.listing.amenities];
+  } else {
+    // Multiple amenities come as an array
+    newListing.amenities = req.body.listing.amenities;
+  }
+
   if (!data || data.length === 0) {
     req.flash("error", "Could not find coordinates for this location");
     return res.redirect("/listings/new");
@@ -67,13 +78,23 @@ module.exports.renderEditForm = async (req, res) => {
 module.exports.updateListing = async (req, res) => {
   let { id } = req.params;
   const listing = await Listing.findById(id);
-  let url = req.file.path;
-  let filename = req.file.filename;
-  listing.image = { url, filename };
-  listing.save();
+  
+  // Handle amenities array - if no amenities selected, set to empty array
+  if (!req.body.listing.amenities) {
+    req.body.listing.amenities = [];
+  } else if (typeof req.body.listing.amenities === 'string') {
+    // If only one amenity is selected, it comes as a string
+    req.body.listing.amenities = [req.body.listing.amenities];
+  }
+  // Multiple amenities come as an array and don't need conversion
 
-  // If image field is missing or empty, preserve the old image object
-  if (!req.body.listing.image || req.body.listing.image === "") {
+  // Handle image update if new file uploaded
+  if (req.file) {
+    let url = req.file.path;
+    let filename = req.file.filename;
+    req.body.listing.image = { url, filename };
+  } else if (!req.body.listing.image || req.body.listing.image === "") {
+    // If no new image, preserve the old image object
     req.body.listing.image = listing.image;
   } else if (typeof req.body.listing.image === "string") {
     // If only URL is provided, update just the url property

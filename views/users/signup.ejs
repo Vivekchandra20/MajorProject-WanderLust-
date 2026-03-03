@@ -1,36 +1,432 @@
 <% layout("/layouts/boilerplate") %>
-<div class="row mt-3">
-    <h1 class="col-6 offset-3">SignUp to WanderLust</h1>
-    <div class="col-6 offset-3">
-        <form action="/signup" method="post" novalidate class="needs-validation">
-             <div class="mb-3">
-            <label for="username" class="form-label">Title</label>
-        <input type="text" 
-        id="username" name="username" class="form-control"
-        required
-        >
-             <div class="valid-feedback">Looks good!</div>
-        </div>
 
-             <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-        <input type="email" 
-        id="email" name="email" class="form-control"
-        required
-        >
-            
-        </div>
+<link rel="stylesheet" href="/css/premium-listings.css">
+<link rel="stylesheet" href="/css/premium-form.css">
 
-            <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-        <input type="password" 
-        id="password" name="password" class="form-control"
-        required
-        >
-           </div>
+<style>
+  /* Fix layout zoom and spacing issues */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    zoom: 100% !important;
+    width: 100% !important;
+    font-size: 16px !important;
+  }
+  
+  body {
+    display: block !important;
+    flex-direction: unset !important;
+    min-height: auto !important;
+  }
+  
+  /* Hide old navbar */
+  nav:not(.premium-navbar) {
+    display: none !important;
+  }
+  
+  /* Remove container constraints */
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: unset !important;
+    width: 100% !important;
+  }
+  
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 
-           <button class="btn btn-primary">SignUp</button>
-        </form>
+  /* Auth Page Container */
+  .auth-page {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 2rem 2rem;
+    margin-top: -100px;
+  }
 
+  .auth-container {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .auth-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(26, 35, 50, 0.15);
+    padding: 3rem 2rem;
+    animation: slideUp 0.6s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .auth-icon {
+    font-size: 3rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .auth-header h1 {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  .auth-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  .form-divider {
+    text-align: center;
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  .form-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border-color);
+  }
+
+  .form-divider span {
+    background: white;
+    padding: 0 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    position: relative;
+  }
+
+  .auth-link {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-secondary);
+  }
+
+  .auth-link a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .auth-link a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.875rem 1.125rem;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 1rem;
+    color: var(--primary);
+    background: #fafaf8;
+    transition: all 0.3s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-sizing: border-box;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+  }
+
+  .form-input::placeholder {
+    color: #999;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(26, 35, 50, 0.2);
+    margin-top: 1rem;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(26, 35, 50, 0.3);
+  }
+
+  .submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .terms-agreement {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 1.5rem 0;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .terms-agreement a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .terms-agreement a:hover {
+    text-decoration: underline;
+  }
+
+  .logo-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .logo-link {
+    font-size: 1.5rem;
+    color: var(--primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .logo-link:hover {
+    color: var(--accent);
+  }
+
+  .logo-link i {
+    color: var(--accent);
+  }
+
+  .password-strength {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    background: #f0f0f0;
+    display: none;
+  }
+
+  .password-strength.show {
+    display: block;
+  }
+
+  @media (max-width: 480px) {
+    .auth-card {
+      padding: 2rem 1.5rem;
+    }
+
+    .auth-header h1 {
+      font-size: 1.5rem;
+    }
+
+    .auth-icon {
+      font-size: 2.5rem;
+    }
+  }
+</style>
+
+<!-- PREMIUM NAVBAR -->
+<nav class="premium-navbar">
+  <div class="navbar-container">
+    <a href="/" class="navbar-logo">
+      <i class="fa-solid fa-compass"></i> WanderLust
+    </a>
+    <div style="flex: 1;"></div>
+    <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.9rem;">
+      <span style="color: var(--text-secondary);">Already have an account? </span>
+      <a href="/login" style="color: var(--accent); text-decoration: none; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Sign in</a>
     </div>
+  </div>
+</nav>
+
+<!-- SIGNUP PAGE -->
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- Logo Section -->
+      <div class="logo-section">
+        <a href="/" class="logo-link">
+          <i class="fa-solid fa-compass"></i> WanderLust
+        </a>
+      </div>
+
+      <!-- Header -->
+      <div class="auth-header">
+        <div class="auth-icon">
+          <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <h1>Join WanderLust</h1>
+        <p>Create your account and start exploring</p>
+      </div>
+
+      <!-- Signup Form -->
+      <form action="/signup" method="post" novalidate>
+        <!-- Username -->
+        <div class="form-group">
+          <label for="username" class="form-label">
+            <i class="fa-solid fa-user" style="color: var(--accent); margin-right: 0.5rem;"></i>
+            Username
+          </label>
+          <input 
+            type="text"
+            id="username"
+            name="username"
+            class="form-input"
+            placeholder="Choose a unique username"
+            required
+          />
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email" class="form-label">
+            <i class="fa-solid fa-envelope" style="color: var(--accent); margin-right: 0.5rem;"></i>
+            Email Address
+          </label>
+          <input 
+            type="email"
+            id="email"
+            name="email"
+            class="form-input"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password" class="form-label">
+            <i class="fa-solid fa-lock" style="color: var(--accent); margin-right: 0.5rem;"></i>
+            Password
+          </label>
+          <input 
+            type="password"
+            id="password"
+            name="password"
+            class="form-input"
+            placeholder="Create a strong password"
+            required
+            minlength="8"
+          />
+          <div class="password-strength" id="passwordStrength"></div>
+        </div>
+
+        <!-- Terms Agreement -->
+        <div class="terms-agreement">
+          By signing up, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn">
+          <i class="fa-solid fa-arrow-right" style="margin-right: 0.5rem;"></i>
+          Create Account
+        </button>
+      </form>
+
+      <!-- Login Link -->
+      <div class="auth-link">
+        Already have an account? <a href="/login">Sign in</a>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+  // Add form interactivity
+  document.querySelectorAll('.form-input').forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.closest('.form-group').style.transform = 'scale(1.02)';
+    });
+    
+    input.addEventListener('blur', function() {
+      this.parentElement.closest('.form-group').style.transform = 'scale(1)';
+    });
+  });
+
+  // Password strength indicator
+  const passwordInput = document.getElementById('password');
+  const strengthDiv = document.getElementById('passwordStrength');
+
+  function getPasswordStrength(password) {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    
+    return strength;
+  }
+
+  passwordInput.addEventListener('input', function() {
+    const strength = getPasswordStrength(this.value);
+    
+    if (this.value.length > 0) {
+      strengthDiv.classList.add('show');
+      
+      let strengthColor = '';
+      let strengthText = '';
+      
+      if (strength < 2) {
+        strengthColor = '#dc3545';
+        strengthText = '🔴 Weak password';
+      } else if (strength < 4) {
+        strengthColor = '#ffc107';
+        strengthText = '🟡 Fair password';
+      } else {
+        strengthColor = '#28a745';
+        strengthText = '🟢 Strong password';
+      }
+      
+      strengthDiv.style.color = strengthColor;
+      strengthDiv.style.borderColor = strengthColor;
+      strengthDiv.textContent = strengthText;
+    } else {
+      strengthDiv.classList.remove('show');
+    }
+  });
+</script>
