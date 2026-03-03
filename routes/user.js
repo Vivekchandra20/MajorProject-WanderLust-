@@ -19,8 +19,21 @@ router
   .route("/login")
   .get( userController.renderLogIn)
   .post(
+    (req, res, next) => {
+      console.log("\n🔐 ===== LOGIN ATTEMPT =====");
+      console.log("📝 Username provided:", req.body.username ? "yes" : "no");
+      console.log("📝 Username value:", req.body.username);
+      console.log("📝 Password provided:", req.body.password ? "yes" : "no");
+      
+      if (!req.body.username || !req.body.password) {
+        console.log("❌ Missing username or password!");
+        req.flash("error", "Please provide both username and password");
+        return res.redirect("/login");
+      }
+      next();
+    },
     saveRedirectUrl,
-    passport.authenticate("local",{
+    passport.authenticate("local", {
       failureRedirect: "/login",
       failureFlash: true,
     }),

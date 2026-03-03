@@ -250,15 +250,12 @@
       <% } %>
 
       <% for(let listing of allListings) { %>
-        <a href="/listings/<%= listing._id %>" class="hotel-card" data-price="<%= listing.price %>">
+        <a href="/listings/<%= listing._id %>" class="hotel-card" data-price="<%= listing.price %>" data-rating="<%= listing.avgRating || 0 %>">
           <!-- Image Section -->
           <div class="hotel-image-wrapper">
             <img src="<%= listing.image.url %>" alt="<%= listing.title %>" class="hotel-image">
             
-            <!-- Badge -->
-            <div class="hotel-badge">
-              <i class="fa-solid fa-star"></i> Featured
-            </div>
+           
 
             <!-- Carousel Dots -->
             <div class="carousel-dots">
@@ -287,14 +284,13 @@
             <!-- Rating -->
             <div class="hotel-rating">
               <div class="stars-display">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-regular fa-star"></i>
+                <% const fullStars = Math.round(listing.avgRating || 0); %>
+                <% for(let i = 1; i <= 5; i++) { %>
+                  <i class="fa-<%= i <= fullStars ? 'solid' : 'regular' %> fa-star"></i>
+                <% } %>
               </div>
-              <span class="rating-text">4.0</span>
-              <span class="review-count">(324 reviews)</span>
+              <span class="rating-text"><%= (listing.avgRating || 0).toFixed(1) %></span>
+              <span class="review-count">(<%= listing.reviewsCount || 0 %> reviews)</span>
             </div>
 
             <!-- Amenities -->
@@ -330,7 +326,7 @@
     <!-- LIST VIEW -->
     <div class="listings-list" id="listings-list" style="display: none;">
       <% for(let listing of allListings) { %>
-        <a href="/listings/<%= listing._id %>" class="hotel-card-list" data-price="<%= listing.price %>">
+        <a href="/listings/<%= listing._id %>" class="hotel-card-list" data-price="<%= listing.price %>" data-rating="<%= listing.avgRating || 0 %>">
           <div class="hotel-image-wrapper">
             <img src="<%= listing.image.url %>" alt="<%= listing.title %>" class="hotel-image">
           </div>
@@ -347,13 +343,13 @@
             </div>
             <div class="hotel-rating">
               <div class="stars-display">
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-solid fa-star"></i>
-                <i class="fa-regular fa-star"></i>
+                <% const fullStars = Math.round(listing.avgRating || 0); %>
+                <% for(let i = 1; i <= 5; i++) { %>
+                  <i class="fa-<%= i <= fullStars ? 'solid' : 'regular' %> fa-star"></i>
+                <% } %>
               </div>
-              <span class="review-count">(324 reviews)</span>
+              <span class="rating-text"><%= (listing.avgRating || 0).toFixed(1) %></span>
+              <span class="review-count">(<%= listing.reviewsCount || 0 %> reviews)</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
               <div class="hotel-price">
@@ -427,6 +423,8 @@ sortSelect.addEventListener('change', function() {
   gridCards.sort((a, b) => {
     const priceA = parseInt(a.dataset.price);
     const priceB = parseInt(b.dataset.price);
+    const ratingA = parseFloat(a.dataset.rating || '0');
+    const ratingB = parseFloat(b.dataset.rating || '0');
     
     switch(sortValue) {
       case 'price-low':
@@ -434,7 +432,7 @@ sortSelect.addEventListener('change', function() {
       case 'price-high':
         return priceB - priceA;
       case 'rating':
-        return Math.random() - 0.5;
+        return ratingB - ratingA;
       default:
         return 0;
     }
@@ -444,6 +442,8 @@ sortSelect.addEventListener('change', function() {
   listCards.sort((a, b) => {
     const priceA = parseInt(a.dataset.price);
     const priceB = parseInt(b.dataset.price);
+    const ratingA = parseFloat(a.dataset.rating || '0');
+    const ratingB = parseFloat(b.dataset.rating || '0');
     
     switch(sortValue) {
       case 'price-low':
@@ -451,7 +451,7 @@ sortSelect.addEventListener('change', function() {
       case 'price-high':
         return priceB - priceA;
       case 'rating':
-        return Math.random() - 0.5;
+        return ratingB - ratingA;
       default:
         return 0;
     }

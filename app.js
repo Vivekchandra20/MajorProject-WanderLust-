@@ -11,7 +11,7 @@ const session = require("express-session");
 const MongoStore= require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
-const LocalStratergy = require("passport-local");
+const LocalStrategy = require("passport-local").Strategy;
 const User = require("./models/user.js");
 const store = MongoStore.create({
     mongoUrl:  dbUrl,
@@ -37,7 +37,7 @@ app.use(flash());
 
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStratergy(User.authenticate()));
+passport.use(new LocalStrategy(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());

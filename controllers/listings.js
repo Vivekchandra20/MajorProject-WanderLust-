@@ -1,6 +1,25 @@
 const Listing = require("../models/listing");
 module.exports.index = async (req, res) => {
-  const allListings = await Listing.find({});
+  const listings = await Listing.find({}).populate({
+    path: "reviews",
+    select: "rating",
+  });
+
+  const allListings = listings.map((listing) => {
+    const reviewsCount = listing.reviews.length;
+    const totalRating = listing.reviews.reduce(
+      (sum, review) => sum + (review.rating || 0),
+      0
+    );
+    const avgRating = reviewsCount > 0 ? totalRating / reviewsCount : 0;
+
+    return {
+      ...listing.toObject(),
+      reviewsCount,
+      avgRating: Number(avgRating.toFixed(1)),
+    };
+  });
+
   res.render("./listings/index.ejs", { allListings });
 };
 

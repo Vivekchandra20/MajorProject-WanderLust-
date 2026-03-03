@@ -23,14 +23,17 @@ module.exports.signUp = async (req, res) => {
     }
   };
 
-  module.exports.renderLogIn = async (req, res) => {
+module.exports.renderLogIn = async (req, res) => {
   res.render("users/login.ejs");
 };
 
-module.exports.login=  async (req, res) => {
-    req.flash("success", "Welcome to the WanderLust");
-    res.redirect(res.locals.redirectUrl || "/listings");
-  };
+module.exports.login = async (req, res) => {
+  console.log("✅ Login successful for user:", req.user.username);
+  req.flash("success", "Welcome back to WanderLust");
+  const redirectUrl = res.locals.redirectUrl || "/listings";
+  console.log("🔄 Redirecting to:", redirectUrl);
+  res.redirect(redirectUrl);
+};
 
   module.exports.logOut=  (req, res, next) => {
   req.logout((err) => {

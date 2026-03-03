@@ -1,12 +1,17 @@
 const { required } = require("joi");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const passwordLocalMongoose = require("passport-local-mongoose");
+const passportLocalMongoose = require("passport-local-mongoose");
 
 const userSchema = new Schema({
-    email:{
-        type:String,
-        required:true
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    username: {
+        type: String,
+        unique: true
     },
     wishlist: [
         {
@@ -28,5 +33,11 @@ userSchema.pre('save', function(next) {
     next();
 });
 
-userSchema.plugin(passwordLocalMongoose);
-module.exports= mongoose.model("User",userSchema);
+// Configure passport-local-mongoose plugin
+userSchema.plugin(passportLocalMongoose, {
+    usernameField: 'username',
+    usernameQueryFields: ['username'],
+    selectFields: 'username email wishlist createdAt'
+});
+
+module.exports = mongoose.model("User", userSchema);
